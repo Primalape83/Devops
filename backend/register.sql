@@ -1,0 +1,10 @@
+CREATE TABLE TaskFlowusers (
+    FirstName VARCHAR(50) ,
+    LastName VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Password VARCHAR(100) NOT NULL,
+    Role VARCHAR(20) NOT NULL,
+    Created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    
+)
+-- CREATE DATABASE taskflow;
