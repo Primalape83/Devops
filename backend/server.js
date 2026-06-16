@@ -1,0 +1,20 @@
+const express=require('express')
+const db=require('./db')
+const app=express()
+const bycrypt=require('bcrypt')
+const registerRoute=require('./routes/register')
+const jwt=require('jsonwebtoken')
+const loginRoute=require('./routes/login')
+db.query('SELECT NOW()')
+  .then(() => console.log('DB Connected'))
+  .catch(err => console.error('DB Error:', err))
+app.use(express.json())
+app.use('/register',registerRoute)
+app.use('/login',loginRoute)
+app.get('/',(req,res)=>{
+    res.send('Taskflow initialized')
+})
+
+app.listen(2000,()=>{
+    console.log('listening on 2000')
+})

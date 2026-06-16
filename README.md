@@ -1,0 +1,2 @@
+# Taskflow
+ TaskFlow is a full-stack project management and team collaboration platform where users can create projects, assign tasks, track progress, communicate through real-time chat, and manage team workflows efficiently. It includes authentication, task tracking, dashboards, and collaboration features to improve productivity.
