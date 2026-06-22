@@ -1,47 +1,73 @@
-const router = require('express').Router()
-const db = require('../db')
-const bycrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const router = require('express').Router();
+const db = require('../db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 function jwtauth(req, res, next) {
-    const header = req.headers.authorization
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({
+            msg: "Not Authorized"
+        });
+    }
+
     try {
-        if (header) {
-            const token = header.split(' ')[1]
-            const result = jwt.verify(token, process.env.JWT_SECRET_KEY)
-            if (result.role != "Admin") {
-                return res.json({ msg: "Permission denied" })
-            }
-            else if (result.role == "Admin") {
-                next()
-            }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+        if (decoded.role !== "Admin") {
+            return res.status(403).json({
+                msg: "Permission Denied"
+            });
         }
-        else {
-            return res.json({ msg: "NOT authorized" })
-        }
+
+        next();
+
     } catch (err) {
-        return res.json({ msg: "Server Crash" })
+        return res.status(401).json({
+            msg: "Invalid or Expired Token"
+        });
     }
 }
+
 router.post('/', jwtauth, async (req, res) => {
-    const { Fname, lname, email, password, role, phone } = req.body
-    const pass = await bycrypt.hash(password, 10)
+
+    const { Fname, lname, email, password, role, phone } = req.body;
+
     try {
 
-        const result = await db.query('INSERT INTO TaskFlowusers(FirstName,LastName,Email,Password,Role,phone) VALUES($1,$2,$3,$4,$5,$6) RETURNING *', [Fname, lname, email, pass, role, phone])
-        if (result.rowCount > 0) {
-            console.log(result)
-            const emp_id = result.rows[0].emp_id;
+        const pass = await bcrypt.hash(password, 10);
 
-            await db.query(
-                "INSERT INTO OTP(emp_id) VALUES($1)",
-                [emp_id]
-            );
+        const result = await db.query(
+            `INSERT INTO TaskFlowUsers
+            (FirstName, LastName, Email, Password, Role, Phone)
+            VALUES($1,$2,$3,$4,$5,$6)
+            RETURNING *`,
+            [Fname, lname, email, pass, role, phone]
+        );
 
-            res.status(200).json({ message: 'User registered successfully' })
-        }
+        const emp_id = result.rows[0].emp_id;
+
+        await db.query(
+            `INSERT INTO OTP(emp_id)
+             VALUES($1)`,
+            [emp_id]
+        );
+
+        return res.status(201).json({
+            message: "User Registered Successfully"
+        });
+
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ message: 'Error registering user' })
+
+        console.error(err);
+
+        return res.status(500).json({
+            message: "Error Registering User"
+        });
+
     }
-})
+
+});
+
 module.exports = router;

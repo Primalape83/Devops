@@ -1,29 +1,38 @@
 const router = require('express').Router()
-const db = require('../db')
-const bycrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+
 
 router.post('/', async (req, res) => {
     const { email, password } = req.body
     const q = 'SELECT * FROM TaskFlowUsers WHERE email=$1'
     const { rows, rowCount } = (await db.query(q, [email]))
     if (rowCount > 0) {
-        if (await bycrypt.compare(password, rows[0].password)) {
+        const exist=await bycrypt.compare(password, rows[0].password)
+        if(exist) {
             const token = jwt.sign(
                 {
+                    emp_id: rows[0].emp_id,
                     email: rows[0].email,
                     role: rows[0].role
                 },
                 process.env.JWT_SECRET_KEY,
-                { expiresIn: '2h' }
+                { expiresIn: '24h' }
             );
-            res.status(200).json({ token: token, message: 'Login successful' })
-        } else {
-            res.status(401).json({ message: 'Invalid credentials' })
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000
+            })
+            return res.status(200).json({
+                message: "Login Successful",
+                role:rows[0].role
+            });
+        }else{
+            return res.status(401).json({ message: 'Invalid password'})
         }
     } else {
-        res.status(401).json({ message: 'Invalid credentials' })
+        return res.status(401).json({ message: 'Invalid credentials' })
     }
 
 })
-module.exports = router
+module.exports = router;
