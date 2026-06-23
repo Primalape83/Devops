@@ -15,6 +15,13 @@ const getteams=require('./routes/getteams')
 db.query('SELECT NOW()')
     .then(() => console.log('DB Connected'))
     .catch(err => console.error('DB Error:', err))
+    const cors = require("cors");
+
+// In your backend server.js
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],  // ← add 3000
+  credentials: true
+}));
 app.use(express.json())
 app.use(cookieParser())
 const path = require('path');

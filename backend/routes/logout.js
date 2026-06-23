@@ -1,4 +1,7 @@
 const router = require('express').Router();
+const db = require('../db');
+const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
 
 router.get('/', (req, res) => {
 

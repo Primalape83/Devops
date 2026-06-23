@@ -14,7 +14,12 @@ router.get('/', async (req, res) => {
             });
         }
 
-        const result = await db.query("SELECT * FROM Teams");
+        const result = await db.query(`
+    SELECT t.team_id, t.team_name, t.manager_id, t.created_at,
+           u.firstname, u.lastname, u.email
+    FROM Teams t
+    LEFT JOIN TaskFlowUsers u ON t.manager_id = u.emp_id
+`);
 
         return res.status(200).json({
             Teams: result.rows
