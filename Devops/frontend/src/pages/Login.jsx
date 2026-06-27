@@ -37,8 +37,12 @@ export default function Login() {
       const { data } = await api.post("/login", { email, password });
       if (data.role === "Admin") {
         navigate("/admin");
+      } else if (data.role === "Team Manager") {
+        navigate("/manager");
+      } else if (data.role === "Employee") {
+        navigate("/employee");
       } else {
-        setError("Access denied. Admin accounts only.");
+        setError("Access denied. No dashboard available for your role.");
       }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials.");
