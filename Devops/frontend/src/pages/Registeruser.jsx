@@ -182,8 +182,8 @@ export default function RegisterUser() {
               <div style={{ marginBottom: 16 }}>
                 <span style={{ fontSize: 12, color: "var(--color-text-muted)" }}>Role preview: </span>
                 <span className={`badge ${
-                  form.role === "Admin"    ? "badge-blue" :
-                  form.role === "Manager" ? "badge-green" : "badge-gray"
+                  form.role === "Admin"        ? "badge-blue" :
+                  form.role === "Team Manager" ? "badge-green" : "badge-gray"
                 }`}>
                   {form.role}
                 </span>
